@@ -1,0 +1,512 @@
+rMatrix <- rMatrix[,-1]
+colnames(mSelected) <- colnames(rMatrix)
+#combines the userSelect and rMatrix data by the rows
+rMatrix2 <- rbind(mSelected,rMatrix)
+rMatrix2 <- as.matrix(rMatrix2)
+#Convert the rMatrix2 into the sparsing matrix by using realRatingMatrix
+rMatrix2 <- as(rMatrix2, "realRatingMatrix")
+#Recommender function with UBCF method is used to perform the UCBF operation with cosine functionality
+recommender_model <- Recommender(rMatrix2, method = "UBCF",param=list(method="Cosine",nn=30))
+#recommender lab function to preditc the similarities
+Output <- predict(recommender_model, rMatrix2[1], n=10)
+result_list <- as(Output, "list")
+notFound <- data.frame(matrix(NA,1))
+#10 suggested movies are stored into the result
+result <- data.frame(matrix(NA,10))
+#When there are no recommendations by the recommender function
+if (as.character(result_list[1])=='character(0)'){
+notFound[1,1] <- "Sorry, Select different movies you like."
+colnames(notFound) <- "No Recommendations found "
+return(notFound)
+} else {
+#to display the 10 movies from the recommended lists
+for (i in c(1:10)){
+result[i,1] <- as.character(subset(movies,
+movies$movieId == as.integer(result_list[[1]][i]))$title)
+}
+colnames(result) <- "Based on User Ratings"
+return(result)
+}
+}
+ratin=ratings1[1:100,]
+ratin[,"movieId"]
+formatInput <- function(v,a,d){
+c(v,a,d)
+}
+#ShinyServer logic to display the output from the recommender function
+shinyServer(function(input, output) {
+output$phonePlot <- renderPlot({
+# Render a barplot
+hist(ratings1[,input$region],
+main=input$region,
+ylab="ratings ",
+xlab="movies")
+})
+output$phonePlot2 <- renderPlot({
+# Render a barplot
+hist(movies2[,input$region],
+main=input$region,
+ylab="ratings ",
+xlab="movies")
+})
+# generates calls to UI functions
+#and make the results appear in a predetermined place in the UI.
+output$mov1 <- renderUI({
+if (is.null(input$GenreInput))
+return()
+#Selection of the Genre input
+switch(input$GenreInput,
+#the movies you like in the input section for the first column
+#Sorting the movies according to the genres to select from the Second row in the first column
+"Action" = selectInput("mInput1", "Movie you like ",
+choices = sort(subset(search, Action == 1)$title),
+selected = sort(subset(search, Action == 1)$title)[1]),
+"Adventure" = selectInput("mInput1", "Movie you like ",
+choices = sort(subset(search, Adventure == 1)$title),
+selected = sort(subset(search, Adventure == 1)$title)[1]),
+"Animation" =  selectInput("mInput1", "Movie you like ",
+choices = sort(subset(search, Animation == 1)$title),
+selected = sort(subset(search, Animation == 1)$title)[1]),
+"Children" =  selectInput("mInput1", "Movie you like ",
+choices = sort(subset(search, Children == 1)$title),
+selected = sort(subset(search, Children == 1)$title)[1]),
+"Comedy" =  selectInput("mInput1", "Movie you like ",
+choices = sort(subset(search, Comedy == 1)$title),
+selected = sort(subset(search, Comedy == 1)$title)[1]),
+"Crime" =  selectInput("mInput1", "Movie you like ",
+choices = sort(subset(search, Crime == 1)$title),
+selected = sort(subset(search, Crime == 1)$title)[1]),
+"Documentary" =  selectInput("mInput1", "Movie you like ",
+choices = sort(subset(search, Documentary == 1)$title),
+selected = sort(subset(search, Documentary == 1)$title)[1]),
+"Drama" =  selectInput("mInput1", "Movie you like ",
+choices = sort(subset(search, Drama == 1)$title),
+selected = sort(subset(search, Drama == 1)$title)[1]),
+"Fantasy" =  selectInput("mInput1", "Movie you like ",
+choices = sort(subset(search, Fantasy == 1)$title),
+selected = sort(subset(search, Fantasy == 1)$title)[1]),
+"Film.Noir" =  selectInput("mInput1", "Movie you like ",
+choices = sort(subset(search, Film.Noir == 1)$title),
+selected = sort(subset(search, Film.Noir == 1)$title)[1]),
+"Horror" =  selectInput("mInput1", "Movie you like ",
+choices = sort(subset(search, Horror == 1)$title),
+selected = sort(subset(search, Horror == 1)$title)[1]),
+"Musical" =  selectInput("mInput1", "Movie you like ",
+choices = sort(subset(search, Musical == 1)$title),
+selected = sort(subset(search, Musical == 1)$title)[1]),
+"Mystery" =  selectInput("mInput1", "Movie you like ",
+choices = sort(subset(search, Mystery == 1)$title),
+selected = sort(subset(search, Mystery == 1)$title)[1]),
+"Romance" =  selectInput("mInput1", "Movie you like ",
+choices = sort(subset(search, Romance == 1)$title),
+selected = sort(subset(search, Romance == 1)$title)[1]),
+"Sci.Fi" =  selectInput("mInput1", "Movie you like ",
+choices = sort(subset(search, Sci.Fi == 1)$title),
+selected = sort(subset(search, Sci.Fi == 1)$title)[1]),
+"Thriller" =  selectInput("mInput1", "Movie you like ",
+choices = sort(subset(search, Thriller == 1)$title),
+selected = sort(subset(search, Thriller == 1)$title)[1]),
+"War" =  selectInput("mInput1", "Movie you like ",
+choices = sort(subset(search, War == 1)$title),
+selected = sort(subset(search, War == 1)$title)[1]),
+"Western" = selectInput("mInput1", "Movie you like ",
+choices = sort(subset(search, Western == 1)$title),
+selected = sort(subset(search, Western == 1)$title)[1])
+)
+})
+# generates calls to UI functions
+#and make the results appear in a predetermined place in the UI.
+output$mov2 <- renderUI({
+if (is.null(input$GenreInput2))
+return()
+#Selection of the Genre input and
+switch(input$GenreInput2,
+#the movies you like in the input section for the first column
+#Sorting the movies according to the genres to select from the Second row in the first column
+"Action" = selectInput("mInput2", "Movie you like ",
+choices = sort(subset(search, Action == 1)$title),
+selected = sort(subset(search, Action == 1)$title)[1]),
+"Adventure" = selectInput("mInput2", "Movie you like ",
+choices = sort(subset(search, Adventure == 1)$title),
+selected = sort(subset(search, Adventure == 1)$title)[1]),
+"Animation" =  selectInput("mInput2", "Movie you like ",
+choices = sort(subset(search, Animation == 1)$title),
+selected = sort(subset(search, Animation == 1)$title)[1]),
+"Children" =  selectInput("mInput2", "Movie you like ",
+choices = sort(subset(search, Children == 1)$title),
+selected = sort(subset(search, Children == 1)$title)[1]),
+"Comedy" =  selectInput("mInput2", "Movie you like ",
+choices = sort(subset(search, Comedy == 1)$title),
+selected = sort(subset(search, Comedy == 1)$title)[1]),
+"Crime" =  selectInput("mInput2", "Movie you like ",
+choices = sort(subset(search, Crime == 1)$title),
+selected = sort(subset(search, Crime == 1)$title)[1]),
+"Documentary" =  selectInput("mInput2", "Movie you like ",
+choices = sort(subset(search, Documentary == 1)$title),
+selected = sort(subset(search, Documentary == 1)$title)[1]),
+"Drama" =  selectInput("mInput2", "Movie you like ",
+choices = sort(subset(search, Drama == 1)$title),
+selected = sort(subset(search, Drama == 1)$title)[1]),
+"Fantasy" =  selectInput("mInput2", "Movie you like ",
+choices = sort(subset(search, Fantasy == 1)$title),
+selected = sort(subset(search, Fantasy == 1)$title)[1]),
+"Film.Noir" =  selectInput("mInput2", "Movie you like ",
+choices = sort(subset(search, Film.Noir == 1)$title),
+selected = sort(subset(search, Film.Noir == 1)$title)[1]),
+"Horror" =  selectInput("mInput2", "Movie you like ",
+choices = sort(subset(search, Horror == 1)$title),
+selected = sort(subset(search, Horror == 1)$title)[1]),
+"Musical" =  selectInput("mInput2", "Movie you like ",
+choices = sort(subset(search, Musical == 1)$title),
+selected = sort(subset(search, Musical == 1)$title)[1]),
+"Mystery" =  selectInput("mInput2", "Movie you like ",
+choices = sort(subset(search, Mystery == 1)$title),
+selected = sort(subset(search, Mystery == 1)$title)[1]),
+"Romance" =  selectInput("mInput2", "Movie you like ",
+choices = sort(subset(search, Romance == 1)$title),
+selected = sort(subset(search, Romance == 1)$title)[1]),
+"Sci.Fi" =  selectInput("mInput2", "Movie you like ",
+choices = sort(subset(search, Sci.Fi == 1)$title),
+selected = sort(subset(search, Sci.Fi == 1)$title)[1]),
+"Thriller" =  selectInput("mInput2", "Movie you like ",
+choices = sort(subset(search, Thriller == 1)$title),
+selected = sort(subset(search, Thriller == 1)$title)[1]),
+"War" =  selectInput("mInput2", "Movie you like ",
+choices = sort(subset(search, War == 1)$title),
+selected = sort(subset(search, War == 1)$title)[1]),
+"Western" = selectInput("mInput2", "Movie you like ",
+choices = sort(subset(search, Western == 1)$title),
+selected = sort(subset(search, Western == 1)$title)[1])
+)
+})
+# generates calls to UI functions
+#and make the results appear in a predetermined place in the UI.
+output$mov3 <- renderUI({
+if (is.null(input$GenreInput3))
+return()
+#Selection of the Genre input and
+switch(input$GenreInput3,
+#the movies you like in the input section for the first column
+#Sorting the movies according to the genres to select from the Second row in the first column
+"Action" = selectInput("mInput3", "Movie you like ",
+choices = sort(subset(search, Action == 1)$title),
+selected = sort(subset(search, Action == 1)$title)[1]),
+"Adventure" = selectInput("mInput3", "Movie you like ",
+choices = sort(subset(search, Adventure == 1)$title),
+selected = sort(subset(search, Adventure == 1)$title)[1]),
+"Animation" =  selectInput("mInput3", "Movie you like ",
+choices = sort(subset(search, Animation == 1)$title),
+selected = sort(subset(search, Animation == 1)$title)[1]),
+"Children" =  selectInput("mInput3", "Movie you like ",
+choices = sort(subset(search, Children == 1)$title),
+selected = sort(subset(search, Children == 1)$title)[1]),
+"Comedy" =  selectInput("mInput3", "Movie you like ",
+choices = sort(subset(search, Comedy == 1)$title),
+selected = sort(subset(search, Comedy == 1)$title)[1]),
+"Crime" =  selectInput("mInput3", "Movie you like ",
+choices = sort(subset(search, Crime == 1)$title),
+selected = sort(subset(search, Crime == 1)$title)[1]),
+"Documentary" =  selectInput("mInput3", "Movie you like ",
+choices = sort(subset(search, Documentary == 1)$title),
+selected = sort(subset(search, Documentary == 1)$title)[1]),
+"Drama" =  selectInput("mInput3", "Movie you like ",
+choices = sort(subset(search, Drama == 1)$title),
+selected = sort(subset(search, Drama == 1)$title)[1]),
+"Fantasy" =  selectInput("mInput3", "Movie you like ",
+choices = sort(subset(search, Fantasy == 1)$title),
+selected = sort(subset(search, Fantasy == 1)$title)[1]),
+"Film.Noir" =  selectInput("mInput3", "Movie you like ",
+choices = sort(subset(search, Film.Noir == 1)$title),
+selected = sort(subset(search, Film.Noir == 1)$title)[1]),
+"Horror" =  selectInput("mInput3", "Movie you like ",
+choices = sort(subset(search, Horror == 1)$title),
+selected = sort(subset(search, Horror == 1)$title)[1]),
+"Musical" =  selectInput("mInput3", "Movie you like ",
+choices = sort(subset(search, Musical == 1)$title),
+selected = sort(subset(search, Musical == 1)$title)[1]),
+"Mystery" =  selectInput("mInput3", "Movie you like ",
+choices = sort(subset(search, Mystery == 1)$title),
+selected = sort(subset(search, Mystery == 1)$title)[1]),
+"Romance" =  selectInput("mInput3", "Movie you like ",
+choices = sort(subset(search, Romance == 1)$title),
+selected = sort(subset(search, Romance == 1)$title)[1]),
+"Sci.Fi" =  selectInput("mInput3", "Movie you like ",
+choices = sort(subset(search, Sci.Fi == 1)$title),
+selected = sort(subset(search, Sci.Fi == 1)$title)[1]),
+"Thriller" =  selectInput("mInput3", "Movie you like ",
+choices = sort(subset(search, Thriller == 1)$title),
+selected = sort(subset(search, Thriller == 1)$title)[1]),
+"War" =  selectInput("mInput3", "Movie you like ",
+choices = sort(subset(search, War == 1)$title),
+selected = sort(subset(search, War == 1)$title)[1]),
+"Western" = selectInput("mInput3", "Movie you like ",
+choices = sort(subset(search, Western == 1)$title),
+selected = sort(subset(search, Western == 1)$title)[1])
+)
+})
+# used to render static tables in a Shiny app.
+output$table <- renderTable({
+mRecommender(input$mInput1, input$mInput2, input$mInput3)
+})
+# renderPrint captures any print output, converts it to a string, and
+# returns it.
+output$dynamic_value <- renderPrint({
+c(input$mInput1,input$mInput2,input$mInput3)
+})
+})
+runApp()
+runApp()
+runApp()
+###################################Libraries#######################################
+###########################SHiny Library for the GUI###############################
+###################################################################################
+library(shiny)
+#Storing the genres from the dataset into the Genre to display the options for the user
+genres <- c("Action", "Adventure", "Animation", "Children",
+"Comedy", "Crime","Documentary","Film.Noir", "Horror", "Musical", "Mystery","Romance",
+"Sci.Fi", "Thriller", "War", "Western", "Drama", "Fantasy"
+)
+#Shiny UI for the application to display the available movies and the genres
+shinyUI(fluidPage(
+titlePanel("Movie Recommendation Using R"),
+fluidRow(
+titlePanel("Ratings Distribution"),
+selectInput("region", "Region:",
+choices=colnames(ratings1[3])),
+plotOutput("phonePlot"),
+titlePanel("movies distribution"),
+selectInput("reg", "Region:",
+choices=colnames(movies2[4:21])),
+plotOutput("phonePlot2"),
+titlePanel("Select Movie Genres You like:"),
+#Selecting panels for the user to select the genres and the movies of from the genre
+column(4,
+wellPanel(
+selectInput("GenreInput", "Genre 1",
+genres),
+uiOutput("mov1")
+)),
+#Selecting panels for the user to select the genres and the movies of from the genre
+column(4,
+wellPanel(
+selectInput("GenreInput2", "Genre 2",
+genres),
+uiOutput("mov2")),
+submitButton("Update")
+),
+#Selecting panels for the user to select the genres and the movies of from the genre
+column(4,
+wellPanel(
+selectInput("GenreInput3", "Genre 3",
+genres),
+uiOutput("mov3")
+))
+),
+fluidRow(
+wellPanel(
+#Display the recoomended movies for the user
+column(12,titlePanel("Suggested Movies"),
+tableOutput("table")
+))
+)
+))
+runApp()
+runApp()
+runApp()
+runApp()
+sear=subset(search, action == 1)
+sear=subset(search, search$action == 1)
+ratsear=subset(ratings1,sear$movieid==ratings1$movieId)
+View(ratsear)
+View(sear)
+sear=subset(search, search$Action == 1)
+ratsear=subset(ratings1,sear$movieid==ratings1$movieId)
+ratsear=subset(ratings1,sear$movieId==ratings1$movieId)
+ratsear=subset(ratings1[sear$movieId])
+View(ratsear)
+sear=subset(search, search$Animation == 1)
+ratsear=subset(ratings1[sear$movieId])
+ratsear=subset(ratings1[sear$movieId])
+ratings1[sear$movieId].head()
+ratings1[sear$movieId].head
+sear=subset(search, search$Animation == 1)
+ratings1[,sear$movieId].head
+ratsear=subset(ratings1,sear$movieId==ratings1$movieId)
+ratsear=subset(ratings1,ratings1$movieId==sear$movieId)
+ratsear=subset(ratings1,ratings1$movieId==1)
+ratsear=subset(ratings1,ratings1$movieId==sear$movieId)
+ratsear=subset(ratings1,if(ratings1$movieId==sear$movieId))
+sear$movieId
+sear$movieId[1]
+ratings1$movieId[sear$movieId[1]]
+ratings1$movieId==
+sear$movieId[1]
+ratings1$movieId==
+sear$movieId[1]
+ratings1 <- read.csv("ratings.csv", header = TRUE)
+sear$movieId[1]
+sear$movieId[3]
+runApp()
+runApp()
+runApp()
+runApp()
+runApp()
+runApp()
+runApp()
+runApp()
+runApp()
+runApp()
+runApp()
+runApp()
+runApp()
+runApp()
+runApp()
+runApp()
+runApp()
+runApp()
+runApp()
+runApp()
+runApp()
+install.packages("shinythemes")
+library(shinythemes)
+runApp()
+runApp()
+runApp()
+runApp()
+runApp()
+runApp()
+runApp()
+runApp()
+runApp()
+runApp()
+runApp()
+runApp()
+runApp()
+runApp()
+runApp()
+runApp()
+runApp()
+shinyUI(fluidPage(
+theme = shinythemes::shinytheme("superhero"),
+titlePanel("Movie Recommendation Using R"),
+fluidRow(
+navlbar(widths = c(4,12),
+"Header",
+tabPanel("First",
+titlePanel("Ratings Distribution"),
+plotOutput("phonePlot")
+),
+tabPanel("Second",
+titlePanel("movies distribution"),
+selectInput("reg", "Region:",
+choices=colnames(movies2[4:21])),
+plotOutput("phonePlot2")
+),
+tabPanel("Third",
+titlePanel("Select Movie Genres You like:"),
+#Selecting panels for the user to select the genres and the movies of from the genre
+column(4,
+wellPanel(
+selectInput("GenreInput", "Genre 1",
+genres),
+uiOutput("mov1")
+)),
+#Selecting panels for the user to select the genres and the movies of from the genre
+column(4,
+wellPanel(
+selectInput("GenreInput2", "Genre 2",
+genres),
+uiOutput("mov2"))
+),
+#Selecting panels for the user to select the genres and the movies of from the genre
+column(4,
+wellPanel(
+selectInput("GenreInput3", "Genre 3",
+genres),
+uiOutput("mov3")
+)),
+fluidRow(
+wellPanel(
+#Display the recoomended movies for the user
+column(12,titlePanel("Suggested Movies"),
+tableOutput("table")
+))
+)
+)
+)
+)
+))
+runApp()
+runApp()
+runApp()
+runApp()
+runApp()
+runApp()
+runApp()
+runApp()
+l=sort(subset(search, Documentary == 1)$title)
+m=selected = sort(subset(search, Documentary == 1)$title)[1])
+runApp()
+runApp()
+runApp()
+runApp()
+runApp()
+runApp()
+runApp()
+runApp()
+runApp()
+runApp()
+runApp()
+runApp()
+runApp()
+runApp()
+runApp()
+runApp()
+runApp()
+install.packages("ggplot2")
+runApp()
+runApp()
+runApp()
+runApp()
+runApp()
+runApp()
+runApp()
+sear$movieId[1:10]
+l=subset(ratings1,ratings1$movieId==1)
+l=c(subset(ratings1,ratings1$movieId==1))
+l=null
+l=NULL
+l.apend(subset(ratings1,ratings1$movieId==1))
+l=subset(ratings1,ratings1$movieId==1)
+l.apend(subset(ratings1,ratings1$movieId==1))
+l.append(subset(ratings1,ratings1$movieId==1))
+append(l,subset(ratings1,ratings1$movieId==1))
+l=append(l,subset(ratings1,ratings1$movieId==1))
+l=subset(ratings1,ratings1$movieId==1)
+l=cbind(l,subset(ratings1,ratings1$movieId==1))
+View(search)
+runApp()
+runApp()
+runApp()
+runApp()
+runApp()
+runApp()
+runApp()
+runApp()
+runApp()
+runApp()
+runApp()
+runApp()
+runApp()
+runApp()
+runApp()
+runApp()
+runApp()
+runApp()
+runApp()
+shiny::runApp()
+runApp()
+library("colorspace", lib.loc="~/R/win-library/3.4")
+shiny::runApp()
+shiny::runApp()
+shiny::runApp()
